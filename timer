@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LORDNINE • Field Boss Timer</title>
+<style>
+:root{
+  --bg:#08090b;--panel:#151619;--panel2:#101114;--line:#27292e;
+  --text:#f4f5f7;--muted:#777b86;--green:#00d991;--yellow:#ffc400;
+  --orange:#ff6a00;--red:#ff4d4d;--blue:#63a4ff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.container{max-width:1600px;margin:auto;padding:18px 22px 50px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{font-size:21px;font-weight:800;letter-spacing:.3px}
+.brand span{color:var(--orange)}
+.clock{color:#9da1aa;font-size:13px}
+.panel{background:linear-gradient(180deg,#17181b,#131417);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.section-title{height:42px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--line);font-weight:750;font-size:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(0,217,145,.5)}
+.upcoming-list{display:grid;grid-template-columns:repeat(3,1fr)}
+.upcoming{min-height:75px;padding:15px 17px;display:flex;align-items:center;gap:12px;border-right:1px solid var(--line)}
+.upcoming:last-child{border-right:0}
+.avatar{width:42px;height:42px;border-radius:9px;background:#23252a;display:grid;place-items:center;overflow:hidden;flex:none;border:1px solid #30333a}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.avatar .letter{font-weight:800;color:#aeb2bb}
+.u-info{min-width:0;flex:1}
+.name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{display:inline-block;margin-left:7px;padding:2px 7px;border:1px solid #9c3e00;border-radius:4px;color:#ff760e;background:#321500;font-size:10px;font-weight:700}
+.meta{font-size:11px;color:#656a75;margin-top:5px}
+.count{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rotation-order{margin-top:10px;padding:10px 14px;background:#111214;border:1px solid #25282d;border-radius:9px;color:#70757f;font-size:10px;line-height:1.8}
+.rotation-order span{color:#8b9099;letter-spacing:1px;margin-right:8px}
+.rotation-order b{color:#d7d9dd;font-weight:700}
+.maintenance-bar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:14px;padding:12px 15px;background:#17181b;border:1px solid #302d28;border-radius:10px}
+.maintenance-bar strong{display:block;font-size:12px;color:#eee}
+.maintenance-bar span{display:block;color:#777c86;font-size:11px;margin-top:4px}
+@media(max-width:650px){.maintenance-bar{align-items:flex-start;flex-direction:column}.maintenance-bar button{width:100%}}
+.search{margin:24px 0 12px;position:relative}
+.search input{width:100%;height:42px;padding:0 15px 0 40px;border:1px solid var(--line);border-radius:10px;background:#17181b;color:#eee;outline:none}
+.search input:focus{border-color:#444852}
+.search-icon{position:absolute;left:14px;top:11px;color:#777}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:24px}
+.btn,.filter{border:1px solid var(--line);background:#15171a;color:#888d97;border-radius:8px;padding:8px 12px;font-size:12px}
+.btn:hover,.filter:hover{color:#fff;border-color:#41444b}
+.filter.active{background:#202328;color:#fff;border-color:#4b4f58}
+.btn.primary{color:#fff;background:#191b1f}
+.btn.orange{border-color:#8d3a08;color:#ff7a1b}
+.spacer{flex:1}
+.day-heading{display:flex;align-items:center;gap:9px;margin:12px 0 13px;font-size:13px;font-weight:800;letter-spacing:1px}
+.day-heading .green{background:var(--green);width:8px;height:8px;border-radius:50%}
+.day-heading .yellow{background:var(--yellow);width:8px;height:8px;border-radius:50%}
+.day-heading small{color:#626670;font-weight:500;letter-spacing:0}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(250px,1fr));gap:12px}
+.card{background:linear-gradient(180deg,#18191d,#141518);border:1px solid #292c31;border-radius:12px;padding:16px;min-height:250px;position:relative}
+.card.soon{border-color:#006e4e;box-shadow:inset 0 0 0 1px rgba(0,217,145,.05)}
+.card.dead{opacity:.55}
+.card-head{display:flex;gap:12px;align-items:center}
+.card .avatar{width:56px;height:56px}
+.card-main{min-width:0}
+.card .name{font-size:14px}
+.spawn-state{color:var(--green);font-size:13px;font-weight:700;margin-top:8px}
+.spawn-time{font-size:11px;color:#8a8e97;margin-top:5px}
+.count-big{font-size:15px;font-weight:850;font-variant-numeric:tabular-nums;margin-top:8px}
+.card-actions{display:flex;gap:7px;margin-top:18px;padding-top:12px;border-top:1px solid #25272c}
+.card-actions button{flex:1;padding:7px 8px;background:#191b1f;border:1px solid #2d3036;border-radius:7px;color:#a5a8b0;font-size:11px}
+.card-actions button:hover{color:#fff;border-color:#484c55}
+.rotation{margin-top:17px;font-size:9px;letter-spacing:1.2px;color:#6b707a}
+.rotation-value{margin-top:8px;text-align:center;border:1px solid #813708;color:#ff710d;background:#301407;padding:6px;border-radius:5px;font-size:11px;font-weight:700}
+.empty{padding:24px;text-align:center;color:#666b75;border:1px dashed #292c31;border-radius:10px}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(5px);z-index:20;align-items:center;justify-content:center;padding:18px}
+.modal-backdrop.show{display:flex}
+.modal{width:min(520px,100%);background:#15171a;border:1px solid #30333a;border-radius:13px;padding:20px;box-shadow:0 20px 70px rgba(0,0,0,.55)}
+.modal h2{margin:0 0 16px;font-size:18px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field.full{grid-column:1/-1}
+.field label{display:block;color:#898e98;font-size:11px;margin-bottom:6px}
+.field input,.field select{width:100%;height:40px;background:#0f1012;border:1px solid #2b2e34;border-radius:7px;color:#eee;padding:0 10px;outline:none}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.toast{position:fixed;right:20px;bottom:20px;background:#191b1f;border:1px solid #353941;padding:11px 14px;border-radius:8px;color:#ddd;font-size:12px;opacity:0;transform:translateY(8px);transition:.2s;z-index:30}
+.toast.show{opacity:1;transform:none}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.upcoming-list{grid-template-columns:1fr}.upcoming{border-right:0;border-bottom:1px solid var(--line)}.upcoming:last-child{border-bottom:0}.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.container{padding:12px}.grid{grid-template-columns:1fr}.toolbar .spacer{display:none}.form{grid-template-columns:1fr}.field.full{grid-column:auto}.clock{display:none}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="brand">LORD<span>NINE</span> <small style="color:#686d76;font-size:11px;font-weight:600">FIELD BOSS TIMER</small></div>
+    <div class="clock" id="clock"></div>
+  </div>
+
+  <section class="panel">
+    <div class="section-title">◷ <span>Upcoming</span></div>
+    <div class="upcoming-list" id="upcomingList"></div>
+  </section>
+
+  <div class="search">
+    <span class="search-icon">⌕</span>
+    <input id="search" placeholder="Search bosses & activities...">
+  </div>
+
+  <div class="maintenance-bar">
+    <div>
+      <strong>Maintenance / Boss Reset</strong>
+      <span>After maintenance, all 9 bosses are considered spawned. Use this to reset the rotation.</span>
+    </div>
+    <button class="btn orange" id="maintenanceReset">Set All Spawned</button>
+  </div>
+
+  <div class="rotation-order">
+    <span>ROTATION</span>
+    <b>Vena</b> → <b>Vio</b> → <b>Ego</b> → <b>Lady Dalia</b> → <b>Livera</b> → <b>Undomiel</b> → <b>Araneo</b> → <b>General Aquleus</b> → <b>Amentis</b>
+  </div>
+
+  <div class="toolbar">
+    <button class="filter active" data-filter="all">All</button>
+    <button class="filter" data-filter="today">◷ Timer</button>
+    <button class="filter" data-filter="schedule">▣ Schedule</button>
+    <button class="filter" data-filter="all">⌁ Activities</button>
+    <button class="filter" data-range="1">◷ 1h</button>
+    <button class="filter" data-range="8">◷ 8h</button>
+    <button class="filter" data-range="24">◷ 24h</button>
+    <div class="spacer"></div>
+    <select id="guildFilter" class="filter">
+      <option value="all">All Guilds</option>
+    </select>
+    <button class="btn orange" id="addBoss">＋ Add Boss</button>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h2 id="modalTitle">Add Boss</h2>
+    <form id="bossForm">
+      <input type="hidden" id="bossId">
+      <div class="form">
+        <div class="field">
+          <label>Boss name</label>
+          <input id="bossName" required placeholder="e.g. Venatus">
+        </div>
+        <div class="field">
+          <label>Next spawn date</label>
+          <input id="spawnDate" type="date" required>
+        </div>
+        <div class="field">
+          <label>Next spawn time</label>
+          <input id="spawnTime" type="time" required>
+        </div>
+        <div class="field">
+          <label>Respawn interval (hours)</label>
+          <input id="respawn" type="number" min="0" step="0.5" value="24">
+        </div>
+        <div class="field">
+          <label>Schedule</label>
+          <select id="repeat">
+            <option value="none">One-time</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Image URL (optional)</label>
+          <input id="bossImage" placeholder="https://...">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="cancel">Cancel</button>
+        <button type="submit" class="btn orange">Save Boss</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE = "lordnine_field_bosses_v1";
+
+const seed = [
+  {id:"venatus",name:"Venatus",next:Date.now(),respawn:10,repeat:"none",rotation:1},
+  {id:"viorent",name:"Viorent",next:Date.now(),respawn:10,repeat:"none",rotation:2},
+  {id:"ego",name:"Ego",next:Date.now(),respawn:21,repeat:"none",rotation:3},
+  {id:"dalia",name:"Lady Dalia",next:Date.now(),respawn:18,repeat:"none",rotation:4},
+  {id:"livera",name:"Livera",next:Date.now(),respawn:24,repeat:"none",rotation:5},
+  {id:"undomiel",name:"Undomiel",next:Date.now(),respawn:24,repeat:"none",rotation:6},
+  {id:"araneo",name:"Araneo",next:Date.now(),respawn:24,repeat:"none",rotation:7},
+  {id:"general-aquleus",name:"General Aquleus",next:Date.now(),respawn:29,repeat:"none",rotation:8},
+  {id:"amentis",name:"Amentis",next:Date.now(),respawn:29,repeat:"none",rotation:9}
+];
+
+let bosses = JSON.parse(localStorage.getItem(STORAGE) || "null") || seed;
+let activeFilter = "all";
+let rangeHours = null;
+let searchTerm = "";
+
+function pad(n){return String(n).padStart(2,"0")}
+function makeNext(days,h,m){
+  const d=new Date();
+  d.setDate(d.getDate()+days);
+  d.setHours(h,m,0,0);
+  return d.getTime();
+}
+function save(){localStorage.setItem(STORAGE,JSON.stringify(bosses))}
+function dateTime(ts){
+  return new Date(ts).toLocaleString([], {weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function timeOnly(ts){
+  return new Date(ts).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+}
+function countdown(ms){
+  if(ms<=0) return "SPAWNING";
+  const s=Math.floor(ms/1000), d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60), sec=s%60;
+  return (d?d+"d ":"")+pad(h)+":"+pad(m)+":"+pad(sec);
+}
+function advanceBoss(b){
+  const now=Date.now();
+  if(b.next>now) return;
+  if(b.repeat==="daily"){
+    const d=new Date(b.next); d.setDate(d.getDate()+Math.ceil((now-b.next)/86400000)); d.setDate(d.getDate()+1);
+    while(d.getTime()<=now)d.setDate(d.getDate()+1);
+    b.next=d.getTime();
+  }else if(b.repeat==="weekly"){
+    const d=new Date(b.next);
+    while(d.getTime()<=now)d.setDate(d.getDate()+7);
+    b.next=d.getTime();
+  }else if(Number(b.respawn)>0){
+    while(b.next<=now)b.next+=Number(b.respawn)*3600000;
+  }
+}
+function normalized(){
+  bosses.forEach(advanceBoss);
+  save();
+  return bosses.slice().sort((a,b)=>a.next-b.next);
+}
+function imageFor(b){
+  return b.image ? `<img src="${escapeHtml(b.image)}" onerror="this.style.display='none'">` : `<span class="letter">${escapeHtml(b.name.slice(0,1))}</span>`;
+}
+function escapeHtml(s){
+  return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+function isSameDay(ts,offset=0){
+  const a=new Date(ts), b=new Date(); b.setHours(0,0,0,0); b.setDate(b.getDate()+offset);
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+function filtered(list){
+  return list.filter(b=>{
+    const q=searchTerm.toLowerCase();
+    if(q && !b.name.toLowerCase().includes(q))return false;
+      if(rangeHours!==null && (b.next-Date.now())>rangeHours*3600000)return false;
+    return true;
+  });
+}
+function renderUpcoming(list){
+  const upcoming=list.filter(b=>b.next-Date.now()>=0 && b.next-Date.now()<=30*60000).slice(0,3);
+  const el=document.getElementById("upcomingList");
+  if(!upcoming.length){
+    el.innerHTML=`<div class="upcoming" style="grid-column:1/-1;justify-content:center;color:#666b75">No boss spawning within the next 30 minutes.</div>`;
+    return;
+  }
+  el.innerHTML=upcoming.map(b=>`
+    <div class="upcoming">
+      <div class="avatar">${imageFor(b)}</div>
+      <div class="u-info">
+        <div class="name">${escapeHtml(b.name)}</div>
+        <div class="meta">${timeOnly(b.next)} • Upcoming</div>
+      </div>
+      <div class="count">${countdown(b.next-Date.now())}</div>
+    </div>`).join("");
+}
+function card(b){
+  const diff=b.next-Date.now(), soon=diff>=0&&diff<=30*60000;
+  return `<div class="card ${soon?"soon":""}">
+    <div class="card-head">
+      <div class="avatar">${imageFor(b)}</div>
+      <div class="card-main">
+        <div class="name">${escapeHtml(b.name)}</div>
+        <div class="spawn-state">${diff<=0?"SPAWNED":"Next spawn"}</div>
+        <div class="spawn-time">${dateTime(b.next)}</div>
+        <div class="count-big">${countdown(diff)}</div>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button onclick="editBoss('${b.id}')">✎ Edit Spawn</button>
+      <button onclick="markDead('${b.id}')">☠ Mark Dead</button>
+    </div>
+    <div class="rotation">ROTATION • #${b.rotation || "—"} OF 9</div>
+    <div class="rotation-value">${b.respawn?`+${b.respawn}h respawn`:"Fixed schedule"}</div>
+  </div>`;
+}
+function render(){
+  const list=normalized();
+  renderUpcoming(list);
+  const content=document.getElementById("content");
+  const today=filtered(list.filter(b=>isSameDay(b.next,0)));
+  const tomorrow=filtered(list.filter(b=>isSameDay(b.next,1)));
+  let html="";
+  if(activeFilter==="schedule"){
+    html += section("TODAY",today,true)+section("TOMORROW",tomorrow,false);
+  }else if(activeFilter==="today"){
+    html += section("TODAY",today,true);
+  }else{
+    html += section("TODAY",today,true)+section("TOMORROW",tomorrow,false);
+  }
+  content.innerHTML=html || `<div class="empty">No bosses match your filters.</div>`;
+}
+function section(title,list,today){
+  return `<div class="day-heading"><span class="${today?"green":"yellow"}"></span>${title}<small>${list.length} boss${list.length===1?"":"es"}</small></div>
+  ${list.length?`<div class="grid">${list.map(card).join("")}</div>`:`<div class="empty">No bosses scheduled.</div>`}`;
+}
+function openModal(b=null){
+  document.getElementById("modalTitle").textContent=b?"Edit Boss":"Add Boss";
+  document.getElementById("bossId").value=b?.id||"";
+  document.getElementById("bossName").value=b?.name||"";
+  document.getElementById("respawn").value=b?.respawn??24;
+  document.getElementById("repeat").value=b?.repeat||"daily";
+  document.getElementById("bossImage").value=b?.image||"";
+  const d=new Date(b?.next||Date.now()+3600000);
+  document.getElementById("spawnDate").value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  document.getElementById("spawnTime").value=`${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  document.getElementById("modalBackdrop").classList.add("show");
+}
+function closeModal(){document.getElementById("modalBackdrop").classList.remove("show")}
+function editBoss(id){openModal(bosses.find(b=>b.id===id))}
+function markDead(id){
+  const b=bosses.find(x=>x.id===id); if(!b)return;
+  const hours=Number(b.respawn)||24;
+  b.next=Date.now()+hours*3600000;
+  save();
+  toast(`${b.name} killed • +${hours}h respawn`);
+  render();
+}
+function toast(msg){
+  const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2200);
+}
+document.getElementById("maintenanceReset").onclick=()=>{
+  const now=Date.now();
+  bosses.forEach(b=>{ b.next=now; });
+  save();
+  toast("Maintenance reset: all bosses spawned");
+  render();
+};
+
+document.getElementById("addBoss").onclick=()=>openModal();
+document.getElementById("cancel").onclick=closeModal;
+document.getElementById("modalBackdrop").onclick=e=>{if(e.target.id==="modalBackdrop")closeModal()};
+document.getElementById("bossForm").onsubmit=e=>{
+  e.preventDefault();
+  const id=document.getElementById("bossId").value||crypto.randomUUID();
+  const next=new Date(document.getElementById("spawnDate").value+"T"+document.getElementById("spawnTime").value).getTime();
+  const obj={
+    id,name:document.getElementById("bossName").value.trim(),
+    next,respawn:Number(document.getElementById("respawn").value)||0,
+    repeat:document.getElementById("repeat").value,
+    image:document.getElementById("bossImage").value.trim()
+  };
+  const i=bosses.findIndex(b=>b.id===id);
+  if(i>=0)bosses[i]=obj;else bosses.push(obj);
+  save();closeModal();render();toast("Boss saved");
+};
+document.getElementById("search").oninput=e=>{searchTerm=e.target.value;render()};
+document.getElementById("guildFilter").onchange=render;
+document.querySelectorAll(".filter").forEach(btn=>{
+  btn.onclick=()=>{
+    if(btn.dataset.range){rangeHours=Number(btn.dataset.range);toast(`Showing next ${rangeHours} hours`);render();return}
+    document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active");
+    activeFilter=btn.dataset.filter||"all";rangeHours=null;render();
+  }
+});
+function tick(){
+  document.getElementById("clock").textContent=new Date().toLocaleString([],{
+    weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"
+  });
+  render();
+}
+setInterval(tick,1000);
+tick();
+</script>
+</body>
+</html>
