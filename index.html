@@ -81,6 +81,24 @@ button{cursor:pointer}
 .field label{display:block;color:#898e98;font-size:11px;margin-bottom:6px}
 .field input,.field select{width:100%;height:40px;background:#0f1012;border:1px solid #2b2e34;border-radius:7px;color:#eee;padding:0 10px;outline:none}
 .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.death-modal{width:min(640px,100%);padding:0;overflow:hidden}
+.death-header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #2a2c31}
+.death-header h2{margin:0;font-size:17px}
+.death-header h2 span{color:#8d9098}
+.close-modal{border:0;background:none;color:#777b84;font-size:26px;line-height:1;padding:4px 8px}
+.close-modal:hover{color:#fff}
+.death-tabs{margin:16px 10px 0;display:grid;grid-template-columns:1fr 1fr;border:1px solid #2a2d32;border-radius:8px;padding:3px;background:#15171a}
+.death-tab{height:36px;border:0;border-radius:6px;background:transparent;color:#777b84;font-weight:700;font-size:12px}
+.death-tab.active{background:#292a2e;color:#f1f1f3}
+.death-panel{padding:18px 14px 10px;text-align:center}
+.death-help{color:#a5a8b0;font-size:12px}
+.death-current{margin-top:13px;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.death-next{margin-top:9px;color:#777b84;font-size:12px}
+.custom-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left}
+.custom-grid .field label{font-size:11px}
+.custom-grid input{height:42px}
+.confirm-death{width:calc(100% - 28px);margin:10px 14px 16px;height:44px;border:1px solid #2c3036;background:#17191c;border-radius:8px;color:#d4d6db;font-weight:750}
+.confirm-death:hover{border-color:#555a63;color:#fff}
 .toast{position:fixed;right:20px;bottom:20px;background:#191b1f;border:1px solid #353941;padding:11px 14px;border-radius:8px;color:#ddd;font-size:12px;opacity:0;transform:translateY(8px);transition:.2s;z-index:30}
 .toast.show{opacity:1;transform:none}
 @media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
@@ -137,49 +155,41 @@ button{cursor:pointer}
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal">
-    <h2 id="modalTitle">Log Boss Death</h2>
-    <div style="margin:-4px 0 14px;color:#777c86;font-size:11px;line-height:1.5">
-  Use <b style="color:#ddd">Mark Dead Now</b> when you personally participate and know the boss died now.
-  Use <b style="color:#ddd">Log Death Time</b> when you get the exact TOD from a guild mate.
-</div>
-<form id="bossForm">
-      <input type="hidden" id="bossId">
-      <div class="form">
+  <div class="modal death-modal">
+    <div class="death-header">
+      <h2>Record Death: <span id="deathBossName"></span></h2>
+      <button type="button" class="close-modal" id="cancel">×</button>
+    </div>
+
+    <div class="death-tabs">
+      <button type="button" class="death-tab active" id="diedNowTab">⚡ <span>Died Now</span></button>
+      <button type="button" class="death-tab" id="customTimeTab">◷ <span>Custom Time</span></button>
+    </div>
+
+    <div id="diedNowPanel" class="death-panel">
+      <div class="death-help">Current time will be recorded as the death time:</div>
+      <div class="death-current" id="deathCurrentTime"></div>
+      <div class="death-next" id="deathNextPreview"></div>
+    </div>
+
+    <div id="customTimePanel" class="death-panel" style="display:none">
+      <div class="custom-grid">
         <div class="field">
-          <label>Boss name</label>
-          <input id="bossName" required placeholder="e.g. Venatus">
+          <label>Date</label>
+          <input id="deathDate" type="date">
         </div>
         <div class="field">
-          <label>Time of Death (date)</label>
-          <input id="spawnDate" type="date" required>
-        </div>
-        <div class="field">
-          <label>Time of Death (time)</label>
-          <input id="spawnTime" type="time" required>
-        </div>
-        <div class="field">
-          <label>Respawn interval (hours)</label>
-          <input id="respawn" type="number" min="0" step="0.5" value="24">
-        </div>
-        <div class="field">
-          <label>Schedule</label>
-          <select id="repeat">
-            <option value="none">Fixed Respawn</option>
-          </select>
-        </div>
-        <div class="field full">
-          <label>Image URL (optional)</label>
-          <input id="bossImage" placeholder="https://...">
+          <label>Time</label>
+          <input id="deathTime" type="time" step="1">
         </div>
       </div>
-      <div class="modal-actions">
-        <button type="button" class="btn" id="cancel">Cancel</button>
-        <button type="submit" class="btn orange">Save Death Time</button>
-      </div>
-    </form>
+      <div class="death-next" id="customNextPreview"></div>
+    </div>
+
+    <button type="button" class="confirm-death" id="confirmDeath">Confirm</button>
   </div>
 </div>
+
 
 <div class="toast" id="toast"></div>
 
@@ -300,8 +310,7 @@ function card(b){
       </div>
     </div>
     <div class="card-actions">
-      <button onclick="editBoss('${b.id}')">✎ Log Death Time</button>
-      <button onclick="markDead('${b.id}')">☠ Mark Dead Now</button>
+      <button onclick="recordDeath('${b.id}')">☠ Mark Dead</button>
     </div>
     <div class="rotation">ROTATION • #${b.rotation || "—"} OF 9</div>
     <div class="rotation-value">${b.respawn?`+${b.respawn}h respawn`:"Fixed schedule"}</div>
@@ -343,16 +352,103 @@ function openModal(b=null){
   document.getElementById("modalBackdrop").classList.add("show");
 }
 function closeModal(){document.getElementById("modalBackdrop").classList.remove("show")}
-function editBoss(id){openModal(bosses.find(b=>b.id===id))}
-function markDead(id){
-  const b=bosses.find(x=>x.id===id); if(!b)return;
-  const hours=Number(b.respawn)||24;
-  const deathTime=Date.now();
-  b.next=deathTime+hours*3600000;
+let deathBoss = null;
+let deathMode = "now";
+
+function recordDeath(id){
+  deathBoss = bosses.find(b=>b.id===id);
+  if(!deathBoss) return;
+
+  deathMode = "now";
+  document.getElementById("deathBossName").textContent = deathBoss.name;
+
+  const now = new Date();
+  document.getElementById("deathDate").value =
+    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById("deathTime").value =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  document.getElementById("diedNowTab").classList.add("active");
+  document.getElementById("customTimeTab").classList.remove("active");
+  document.getElementById("diedNowPanel").style.display = "";
+  document.getElementById("customTimePanel").style.display = "none";
+
+  updateDeathPreview();
+  document.getElementById("modalBackdrop").classList.add("show");
+}
+
+function getDeathTimestamp(){
+  if(!deathBoss) return Date.now();
+
+  if(deathMode === "now") return Date.now();
+
+  const date = document.getElementById("deathDate").value;
+  const time = document.getElementById("deathTime").value;
+  if(!date || !time) return null;
+
+  return new Date(`${date}T${time}`).getTime();
+}
+
+function updateDeathPreview(){
+  if(!deathBoss) return;
+  const ts = getDeathTimestamp();
+  if(!ts) return;
+
+  const d = new Date(ts);
+  const hours = Number(deathBoss.respawn)||24;
+  const next = ts + hours*3600000;
+
+  document.getElementById("deathCurrentTime").textContent =
+    d.toLocaleString([], {
+      month:"numeric", day:"numeric", year:"numeric",
+      hour:"2-digit", minute:"2-digit", second:"2-digit"
+    });
+
+  const preview = `Next spawn: +${hours}h → ${dateTime(next)}`;
+  document.getElementById("deathNextPreview").textContent = preview;
+  document.getElementById("customNextPreview").textContent = preview;
+}
+
+function confirmDeath(){
+  if(!deathBoss) return;
+
+  const ts = getDeathTimestamp();
+  if(!ts) {
+    toast("Enter a valid death date and time");
+    return;
+  }
+
+  const hours = Number(deathBoss.respawn)||24;
+  deathBoss.next = ts + hours*3600000;
+
   save();
-  toast(`${b.name} marked dead now • next spawn in ${hours}h`);
+  closeModal();
+  toast(`${deathBoss.name} death recorded • next spawn calculated`);
   render();
 }
+
+document.getElementById("diedNowTab").onclick=()=>{
+  deathMode="now";
+  document.getElementById("diedNowTab").classList.add("active");
+  document.getElementById("customTimeTab").classList.remove("active");
+  document.getElementById("diedNowPanel").style.display="";
+  document.getElementById("customTimePanel").style.display="none";
+  updateDeathPreview();
+};
+
+document.getElementById("customTimeTab").onclick=()=>{
+  deathMode="custom";
+  document.getElementById("customTimeTab").classList.add("active");
+  document.getElementById("diedNowTab").classList.remove("active");
+  document.getElementById("diedNowPanel").style.display="none";
+  document.getElementById("customTimePanel").style.display="";
+  updateDeathPreview();
+};
+
+document.getElementById("deathDate").oninput=updateDeathPreview;
+document.getElementById("deathTime").oninput=updateDeathPreview;
+document.getElementById("confirmDeath").onclick=confirmDeath;
+
 function toast(msg){
   const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),2200);
@@ -368,18 +464,7 @@ document.getElementById("maintenanceReset").onclick=()=>{
 document.getElementById("addBoss").onclick=()=>openModal();
 document.getElementById("cancel").onclick=closeModal;
 document.getElementById("modalBackdrop").onclick=e=>{if(e.target.id==="modalBackdrop")closeModal()};
-document.getElementById("bossForm").onsubmit=e=>{
-  e.preventDefault();
-  const id=document.getElementById("bossId").value||crypto.randomUUID();
-  const deathTs=new Date(document.getElementById("spawnDate").value+"T"+document.getElementById("spawnTime").value).getTime();
-  const respawn=Number(document.getElementById("respawn").value)||24;
-  const next=deathTs + respawn*3600000;
-  const obj={
-    id,name:document.getElementById("bossName").value.trim(),
-    next,respawn,
-    repeat:"none",
-    image:document.getElementById("bossImage").value.trim()
-  };
+
   const i=bosses.findIndex(b=>b.id===id);
   if(i>=0)bosses[i]=obj;else bosses.push(obj);
   save();closeModal();render();toast("Death time saved • next spawn calculated");
@@ -400,7 +485,7 @@ function tick(){
   });
   render();
 }
-setInterval(tick,1000);
+setInterval(()=>{ tick(); if(deathMode==="now" && deathBoss && document.getElementById("modalBackdrop").classList.contains("show")) updateDeathPreview(); },1000);
 tick();
 </script>
 </body>
