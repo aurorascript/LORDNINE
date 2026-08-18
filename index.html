@@ -148,7 +148,7 @@ button{cursor:pointer}
     <select id="guildFilter" class="filter">
       <option value="all">All Guilds</option>
     </select>
-    <button class="btn orange" id="addBoss">＋ Add Boss</button>
+    
   </div>
 
   <div id="content"></div>
@@ -336,21 +336,6 @@ function section(title,list,today){
   return `<div class="day-heading"><span class="${today?"green":"yellow"}"></span>${title}<small>${list.length} boss${list.length===1?"":"es"}</small></div>
   ${list.length?`<div class="grid">${list.map(card).join("")}</div>`:`<div class="empty">No bosses scheduled.</div>`}`;
 }
-function openModal(b=null){
-  document.getElementById("modalTitle").textContent=b?"Log Boss Death":"Add Boss";
-  document.getElementById("bossId").value=b?.id||"";
-  document.getElementById("bossName").value=b?.name||"";
-  document.getElementById("respawn").value=b?.respawn??24;
-  document.getElementById("repeat").value=b?.repeat||"daily";
-  document.getElementById("bossImage").value=b?.image||"";
-  // The stored next-spawn timestamp is authoritative. For editing death time,
-  // derive the previous death from the fixed respawn interval.
-  const editTs = b ? (b.next - (Number(b.respawn)||24)*3600000) : Date.now();
-  const d=new Date(editTs);
-  document.getElementById("spawnDate").value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  document.getElementById("spawnTime").value=`${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  document.getElementById("modalBackdrop").classList.add("show");
-}
 function closeModal(){document.getElementById("modalBackdrop").classList.remove("show")}
 let deathBoss = null;
 let deathMode = "now";
@@ -461,16 +446,10 @@ document.getElementById("maintenanceReset").onclick=()=>{
   render();
 };
 
-document.getElementById("addBoss").onclick=()=>openModal();
 document.getElementById("cancel").onclick=closeModal;
 document.getElementById("modalBackdrop").onclick=e=>{if(e.target.id==="modalBackdrop")closeModal()};
 
-  const i=bosses.findIndex(b=>b.id===id);
-  if(i>=0)bosses[i]=obj;else bosses.push(obj);
-  save();closeModal();render();toast("Death time saved • next spawn calculated");
-};
 document.getElementById("search").oninput=e=>{searchTerm=e.target.value;render()};
-document.getElementById("guildFilter").onchange=render;
 document.querySelectorAll(".filter").forEach(btn=>{
   btn.onclick=()=>{
     if(btn.dataset.range){rangeHours=Number(btn.dataset.range);toast(`Showing next ${rangeHours} hours`);render();return}
