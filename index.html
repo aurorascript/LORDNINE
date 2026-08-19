@@ -783,7 +783,13 @@ function tick(){showClock();if(currentRole){render();if(document.getElementById(
 setInterval(tick,1000);tick();
 
 sbClient.auth.getSession().then(async({data})=>{if(data.session)await finishLogin();else showAuth()}).catch(err=>showAuth(err?.message||"Unable to connect to Supabase."));
-sbClient.auth.onAuthStateChange(async(event,session)=>{if(event==="SIGNED_OUT"){currentRole=null;showAuth();return}if(session&&!currentRole)await finishLogin()});
+sbClient.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_OUT") {
+    currentRole = null;
+    currentSession = null;
+    showAuth();
+  }
+});
 </script>
 </body>
 </html>
