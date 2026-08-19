@@ -352,7 +352,7 @@ function advanceBoss(b){
 
 const SUPABASE_URL = "https://mfeyxkfycarjsrmdapsb.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_3dv7PpcVCR5us75B01w0bQ_MetV1dYE";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
 });
 
@@ -522,7 +522,7 @@ function updateDeathPreview(){
 }
 async function confirmDeath(){
   if(!deathBoss)return; const ts=getDeathTimestamp(); if(!ts)return toast("Enter a valid death date and time");
-  const {error}=await supabase.rpc("record_boss_death",{p_boss_id:deathBoss.id,p_death_time:new Date(ts).toISOString()});
+  const {error}=await sbClient.rpc("record_boss_death",{p_boss_id:deathBoss.id,p_death_time:new Date(ts).toISOString()});
   if(error)return toast(error.message);
   closeModal(); toast(`${deathBoss.name} death recorded`); await loadBosses();
 }
@@ -535,7 +535,7 @@ document.getElementById("cancel").onclick=closeModal;document.getElementById("mo
 document.getElementById("maintenanceReset").onclick=async()=>{
   if(currentRole!=="admin")return toast("Admin access required");
   if(!confirm("Reset all 9 bosses to SPAWNED? They will wait for actual TOD."))return;
-  const {error}=await supabase.rpc("maintenance_reset"); if(error)return toast(error.message);
+  const {error}=await sbClient.rpc("maintenance_reset"); if(error)return toast(error.message);
   toast("Maintenance reset: all 9 bosses are SPAWNED"); await loadBosses();
 };
 
@@ -570,7 +570,7 @@ async function loginAdmin(){
   msg.textContent="Connecting to Supabase...";
 
   try{
-    const {data,error}=await supabase.auth.signInWithPassword({email,password});
+    const {data,error}=await sbClient.auth.signInWithPassword({email,password});
 
     if(error){
       console.error("Admin login error:",error);
@@ -596,35 +596,35 @@ async function loginAdmin(){
 }
 async function loginWithKey(){
   const key=document.getElementById("accessKey").value.trim(); if(!key)return toast("Enter your viewer or logger key");
-  let {data:sessionData}=await supabase.auth.getSession();
-  if(!sessionData.session){const {data,error}=await supabase.auth.signInAnonymously();if(error)return toast(error.message);}
+  let {data:sessionData}=await sbClient.auth.getSession();
+  if(!sessionData.session){const {data,error}=await sbClient.auth.signInAnonymously();if(error)return toast(error.message);}
   const hash=await hashKey(key);
-  const {data,error}=await supabase.rpc("redeem_access_key",{p_key_hash:hash});
+  const {data,error}=await sbClient.rpc("redeem_access_key",{p_key_hash:hash});
   if(error)return toast(error.message);
   currentRole=data; await finishLogin();
 }
 async function finishLogin(){
   const msg=document.getElementById("authMessage");
   try{
-    const {data:{session}}=await supabase.auth.getSession();
+    const {data:{session}}=await sbClient.auth.getSession();
     currentSession=session;
     if(!session){
       msg.textContent="No active session. Please log in again.";
       return showAuth();
     }
 
-    const {data:role,error}=await supabase.rpc("current_user_role");
+    const {data:role,error}=await sbClient.rpc("current_user_role");
 
     if(error){
       console.error("Role lookup error:",error);
       msg.textContent="Login worked, but role verification failed: " + (error.message || "unknown error");
-      await supabase.auth.signOut();
+      await sbClient.auth.signOut();
       return;
     }
 
     if(!role){
       msg.textContent="Your account has no assigned role.";
-      await supabase.auth.signOut();
+      await sbClient.auth.signOut();
       return;
     }
 
@@ -636,11 +636,16 @@ async function finishLogin(){
   document.getElementById("maintenanceReset").style.display=currentRole==="admin"?"inline-flex":"none";
   await loadBosses();
   subscribeRealtime();
+  }catch(err){
+    console.error("Unexpected finishLogin error:",err);
+    msg.textContent=err?.message || String(err) || "Unable to finish login.";
+    try{ await sbClient.auth.signOut(); }catch(_){}
+  }
 }
 function showAuth(message=""){
   document.getElementById("authOverlay").classList.add("show");if(message)document.getElementById("authMessage").textContent=message;
 }
-async function logout(){await supabase.auth.signOut();currentRole=null;currentSession=null;bosses=[];if(realtimeChannel)await supabase.removeChannel(realtimeChannel);showAuth();}
+async function logout(){await sbClient.auth.signOut();currentRole=null;currentSession=null;bosses=[];if(realtimeChannel)await sbClient.removeChannel(realtimeChannel);showAuth();}
 
 document.getElementById("adminLoginBtn").onclick=loginAdmin;document.getElementById("keyLoginBtn").onclick=loginWithKey;document.getElementById("logoutBtn").onclick=logout;
 
@@ -648,16 +653,16 @@ document.getElementById("authTabAdmin").onclick=()=>{document.getElementById("au
 document.getElementById("authTabKey").onclick=()=>{document.getElementById("authAdminPanel").style.display="none";document.getElementById("authKeyPanel").style.display="block";document.querySelectorAll(".auth-tab").forEach(x=>x.classList.remove("active"));document.getElementById("authTabKey").classList.add("active")};
 
 async function loadBosses(){
-  const {data,error}=await supabase.from("boss_state").select("*").order("rotation",{ascending:true});
+  const {data,error}=await sbClient.from("boss_state").select("*").order("rotation",{ascending:true});
   if(error){toast(error.message);return}
   bosses=(data||[]).map(row=>({id:row.boss_id,name:row.boss_name,rotation:row.rotation,respawn:Number(row.respawn_hours),next:row.next_spawn?new Date(row.next_spawn).getTime():null,last_death:row.last_death?new Date(row.last_death).getTime():null,maintenance_spawned:row.maintenance_spawned,image_url:row.image_url||""}));
-  if(currentRole==="admin" && bosses.length<9){await supabase.rpc("admin_seed_bosses");const {data:again}=await supabase.from("boss_state").select("*").order("rotation");if(again)bosses=again.map(row=>({id:row.boss_id,name:row.boss_name,rotation:row.rotation,respawn:Number(row.respawn_hours),next:row.next_spawn?new Date(row.next_spawn).getTime():null,last_death:row.last_death?new Date(row.last_death).getTime():null,maintenance_spawned:row.maintenance_spawned,image_url:row.image_url||""}))}
+  if(currentRole==="admin" && bosses.length<9){await sbClient.rpc("admin_seed_bosses");const {data:again}=await sbClient.from("boss_state").select("*").order("rotation");if(again)bosses=again.map(row=>({id:row.boss_id,name:row.boss_name,rotation:row.rotation,respawn:Number(row.respawn_hours),next:row.next_spawn?new Date(row.next_spawn).getTime():null,last_death:row.last_death?new Date(row.last_death).getTime():null,maintenance_spawned:row.maintenance_spawned,image_url:row.image_url||""}))}
   render();
   if(document.getElementById("scheduleView").style.display!=="none")renderSchedule();
 }
 function subscribeRealtime(){
-  if(realtimeChannel) supabase.removeChannel(realtimeChannel);
-  realtimeChannel=supabase.channel("lordnine-boss-state").on("postgres_changes",{event:"*",schema:"public",table:"boss_state"},async()=>{await loadBosses()}).subscribe();
+  if(realtimeChannel) sbClient.removeChannel(realtimeChannel);
+  realtimeChannel=sbClient.channel("lordnine-boss-state").on("postgres_changes",{event:"*",schema:"public",table:"boss_state"},async()=>{await loadBosses()}).subscribe();
 }
 
 async function openSettings(){
@@ -669,17 +674,17 @@ document.getElementById("closeSettings").onclick=closeSettings;
 document.getElementById("settingsModal").onclick=e=>{if(e.target.id==="settingsModal")closeSettings()};
 async function createAccessKey(role){
   const prefix=role==="viewer"?"VIEW":"LOG";const key=generateKey(prefix);const hash=await hashKey(key);const label=document.getElementById("keyLabel").value.trim()||null;
-  const {data,error}=await supabase.rpc("create_access_key",{p_key_hash:hash,p_role:role,p_label:label});
+  const {data,error}=await sbClient.rpc("create_access_key",{p_key_hash:hash,p_role:role,p_label:label});
   if(error)return toast(error.message);
   document.getElementById("newKeyValue").textContent=key;document.getElementById("newKeyBox").classList.add("show");document.getElementById("keyLabel").value="";await refreshKeys();
 }
 document.getElementById("createViewerKey").onclick=()=>createAccessKey("viewer");document.getElementById("createLoggerKey").onclick=()=>createAccessKey("logger");
 document.getElementById("copyNewKey").onclick=async()=>{await navigator.clipboard.writeText(document.getElementById("newKeyValue").textContent);toast("Key copied")};
 async function refreshKeys(){
-  const {data,error}=await supabase.rpc("list_access_keys");if(error)return toast(error.message);
+  const {data,error}=await sbClient.rpc("list_access_keys");if(error)return toast(error.message);
   document.getElementById("keyList").innerHTML=(data||[]).map(k=>`<div class="key-row"><div><b>${escapeHtml(k.role.toUpperCase())}</b><span>${escapeHtml(k.label||"No label")}</span><small>${new Date(k.created_at).toLocaleString()}</small></div><button ${k.revoked?"disabled":""} onclick="revokeKey('${k.id}')">${k.revoked?"Revoked":"Revoke"}</button></div>`).join("")||`<div class="empty">No keys created yet.</div>`;
 }
-async function revokeKey(id){const {error}=await supabase.rpc("revoke_access_key",{p_key_id:id});if(error)return toast(error.message);toast("Access key revoked");refreshKeys()}
+async function revokeKey(id){const {error}=await sbClient.rpc("revoke_access_key",{p_key_id:id});if(error)return toast(error.message);toast("Access key revoked");refreshKeys()}
 
 function tick(){
   document.getElementById("clock").textContent=new Date().toLocaleString([], {weekday:"short",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"});
@@ -688,10 +693,10 @@ function tick(){
 }
 setInterval(tick,1000);
 
-supabase.auth.getSession().then(async({data})=>{
+sbClient.auth.getSession().then(async({data})=>{
   if(data.session) await finishLogin(); else showAuth();
 });
-supabase.auth.onAuthStateChange(async(event,session)=>{
+sbClient.auth.onAuthStateChange(async(event,session)=>{
   if(event==="SIGNED_OUT"){currentRole=null;showAuth();return}
   if(session&&!currentRole) await finishLogin();
 });
