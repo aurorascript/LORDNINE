@@ -663,18 +663,47 @@ function subscribeRealtime(){if(realtimeChannel)sbClient.removeChannel(realtimeC
 
 async function openSettings(){if(currentRole!=="admin")return toast("Admin access required");settingsOpen=true;document.getElementById("settingsModal").classList.add("show");await refreshKeys();await refreshIgnAccounts();await refreshBossManager();if(window.isMasterAdmin)await refreshAccountRequests()}
 function closeSettings(){settingsOpen=false;document.getElementById("settingsModal").classList.remove("show")}
-document.getElementById("settingsNav").onclick=e=>{e.preventDefault();openSettings()};document.getElementById("closeSettings").onclick=closeSettings;document.getElementById("settingsModal").onclick=e=>{if(e.target.id==="settingsModal")closeSettings()};
-async function createIgnAccount(){
+document.getElementById("settingsNav").onclick=e=>{e.preventDefault();openSettings()};document.getElementById("closeSettings").onclick=closeSettings;document.getElementById("settingsModal").onclick=e=>{if(e.target.id==="settingsModal")closeSettings()};async function createIgnAccount(){
   if(currentRole!=="admin")return toast("Admin access required");
+
   const ign=document.getElementById("accountIgn").value.trim();
+  const password=document.getElementById("accountPassword").value;
   const role=document.getElementById("accountRole").value;
+
   if(!ign)return toast("Enter an IGN");
- if(/\s/.test(ign))return toast("IGN cannot contain spaces");
-if(ign.length>40)return toast("IGN must be 40 characters or less");
-  const {error}=await sbClient.rpc("admin_create_ign_account",{p_ign:ign,p_role:role});
-  if(error)return toast(error.message);
+  if(/\s/.test(ign))return toast("IGN cannot contain spaces");
+  if(ign.length>40)return toast("IGN must be 40 characters or less");
+
+  if(password.length<8 || password.length>128){
+    return toast("Password must be 8–128 characters");
+  }
+
+  const guildSelect=document.getElementById("accountGuild");
+  const guildId=window.isMasterAdmin ? guildSelect.value : null;
+
+  if(window.isMasterAdmin && !guildId){
+    return toast("Select a customer guild");
+  }
+
+  const {error}=await sbClient.functions.invoke("create-member-account",{
+    body:{
+      ign,
+      password,
+      role,
+      guild_id:guildId
+    }
+  });
+
+  if(error){
+    console.error(error);
+    return toast(error.message || "Unable to create member account");
+  }
+
   document.getElementById("accountIgn").value="";
+  document.getElementById("accountPassword").value="";
+
   toast(`${ign} added as ${role.toUpperCase()}`);
+
   await refreshIgnAccounts();
 }
 async function refreshIgnAccounts(){
