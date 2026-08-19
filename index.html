@@ -651,7 +651,8 @@ async function createIgnAccount(){
   const ign=document.getElementById("accountIgn").value.trim();
   const role=document.getElementById("accountRole").value;
   if(!ign)return toast("Enter an IGN");
-  if(!/^[^\\s]{1,40}$/.test(ign))return toast("IGN cannot contain spaces");
+ if(/\s/.test(ign))return toast("IGN cannot contain spaces");
+if(ign.length>40)return toast("IGN must be 40 characters or less");
   const {error}=await sbClient.rpc("admin_create_ign_account",{p_ign:ign,p_role:role});
   if(error)return toast(error.message);
   document.getElementById("accountIgn").value="";
