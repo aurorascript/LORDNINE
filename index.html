@@ -555,11 +555,44 @@ function generateKey(prefix){const bytes=new Uint8Array(6);crypto.getRandomValue
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2600)}
 
 async function loginAdmin(){
-  const email=document.getElementById("authEmail").value.trim(),password=document.getElementById("authPassword").value;
-  if(!email||!password)return toast("Enter your admin email and password");
-  const {data,error}=await supabase.auth.signInWithPassword({email,password});
-  if(error)return toast(error.message);
-  currentSession=data.session; await finishLogin();
+  const email=document.getElementById("authEmail").value.trim();
+  const password=document.getElementById("authPassword").value;
+  const msg=document.getElementById("authMessage");
+  const btn=document.getElementById("adminLoginBtn");
+
+  if(!email||!password){
+    msg.textContent="Enter your admin email and password.";
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="Signing in...";
+  msg.textContent="Connecting to Supabase...";
+
+  try{
+    const {data,error}=await supabase.auth.signInWithPassword({email,password});
+
+    if(error){
+      console.error("Admin login error:",error);
+      msg.textContent=error.message || "Admin login failed.";
+      return;
+    }
+
+    if(!data || !data.session){
+      msg.textContent="Login succeeded but no session was returned.";
+      return;
+    }
+
+    currentSession=data.session;
+    msg.textContent="Login successful. Loading your Admin access...";
+    await finishLogin();
+  }catch(err){
+    console.error("Unexpected admin login error:",err);
+    msg.textContent=err?.message || String(err) || "Unexpected login error.";
+  }finally{
+    btn.disabled=false;
+    btn.textContent="Login as Admin";
+  }
 }
 async function loginWithKey(){
   const key=document.getElementById("accessKey").value.trim(); if(!key)return toast("Enter your viewer or logger key");
@@ -571,12 +604,32 @@ async function loginWithKey(){
   currentRole=data; await finishLogin();
 }
 async function finishLogin(){
-  const {data:{session}}=await supabase.auth.getSession();currentSession=session;
-  if(!session)return showAuth();
-  const {data:role,error}=await supabase.rpc("current_user_role");
-  if(error||!role){await supabase.auth.signOut();return showAuth("This access is invalid or has been revoked.")}
-  currentRole=role;
-  document.getElementById("authOverlay").classList.remove("show");
+  const msg=document.getElementById("authMessage");
+  try{
+    const {data:{session}}=await supabase.auth.getSession();
+    currentSession=session;
+    if(!session){
+      msg.textContent="No active session. Please log in again.";
+      return showAuth();
+    }
+
+    const {data:role,error}=await supabase.rpc("current_user_role");
+
+    if(error){
+      console.error("Role lookup error:",error);
+      msg.textContent="Login worked, but role verification failed: " + (error.message || "unknown error");
+      await supabase.auth.signOut();
+      return;
+    }
+
+    if(!role){
+      msg.textContent="Your account has no assigned role.";
+      await supabase.auth.signOut();
+      return;
+    }
+
+    currentRole=role;
+    document.getElementById("authOverlay").classList.remove("show");
   document.getElementById("roleBadge").textContent=currentRole.toUpperCase();
   document.getElementById("roleBadge").className=`role-badge ${currentRole}`;
   document.getElementById("settingsNav").style.display=currentRole==="admin"?"flex":"none";
