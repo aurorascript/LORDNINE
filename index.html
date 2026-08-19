@@ -588,11 +588,21 @@ async function finishLogin(){
     showAuth(roleError.message||"Unable to determine account role.");
     return;
   }
-  if(!role){
-    const {data:status}=await sbClient.rpc("my_account_status");
-    showAuth(status==="pending"?"Your account is pending approval. Contact the owner on Discord after payment.":status==="rejected"?"This account request was rejected.":"This account has no active role.");
-    return;
-  }
+if(!role){
+  const {data:status}=await sbClient.rpc("my_account_status");
+
+  showAuth(
+    status==="pending"
+      ? "Your account is pending approval."
+      : status==="rejected"
+      ? "This account request was rejected."
+      : status==="disabled"
+      ? "Your account has been disabled. Contact your administrator."
+      : "This account has no active role."
+  );
+
+  return;
+}
   const {data:accountStatus}=await sbClient.rpc("my_account_status");
   if(accountStatus==="disabled"){
     await sbClient.auth.signOut();
