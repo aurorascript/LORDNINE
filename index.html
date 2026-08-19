@@ -531,9 +531,6 @@ async function loginWithKey(){
     if(error){msg.textContent=error.message||"IGN/password is incorrect or the account is not active.";return}
     if(!data?.session){msg.textContent="No active session was returned.";return}
     currentSession=data.session;
-    const status=await sbClient.rpc("my_account_status");
-    if(status.data==="pending"){await sbClient.auth.signOut();msg.textContent="Your account is pending approval. Contact the owner on Discord after payment.";return}
-    if(status.data==="rejected"){await sbClient.auth.signOut();msg.textContent="This account request was rejected.";return}
     await finishLogin();
   }catch(err){console.error(err);msg.textContent=err?.message||String(err)||"Unable to log in."}
   finally{btn.disabled=false;btn.textContent="Enter Timer"}
