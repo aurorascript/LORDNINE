@@ -663,16 +663,31 @@ async function refreshIgnAccounts(){
   document.getElementById("accountList").innerHTML=(data||[]).map(a=>`<div class="account-row">
     <div><b>${escapeHtml(a.ign)}</b><small>${escapeHtml(a.role.toUpperCase())} • ${a.revoked?"DISABLED":"ACTIVE"}</small></div>
     <div class="account-actions">
-      <button type="button" ${a.revoked?"disabled":""} onclick="disableIgnAccount('${a.id}')">${a.revoked?"Disabled":"Disable"}</button>
+     <button type="button" onclick="${a.revoked ? `enableIgnAccount('${a.id}')` : `disableIgnAccount('${a.id}')`}">
+${a.revoked ? "Enable" : "Disable"}
+</button>
       <button type="button" class="danger" onclick="deleteIgnAccount('${a.id}')">Delete</button>
     </div>
   </div>`).join("")||`<div class="empty">No IGN accounts created yet.</div>`;
-}
+} 
 async function disableIgnAccount(id){
   if(currentRole!=="admin")return toast("Admin access required");
   const {error}=await sbClient.rpc("disable_ign_account",{p_account_id:id});
   if(error)return toast(error.message);
   toast("IGN account disabled");
+  await refreshIgnAccounts();
+} async function enableIgnAccount(id){
+  if(currentRole!=="admin")
+    return toast("Admin access required");
+
+  const {error}=await sbClient.rpc("enable_ign_account",{
+    p_account_id:id
+  });
+
+  if(error)
+    return toast(error.message);
+
+  toast("IGN account enabled");
   await refreshIgnAccounts();
 }
 async function deleteIgnAccount(id){
