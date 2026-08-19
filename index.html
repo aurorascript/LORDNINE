@@ -254,11 +254,29 @@ button{cursor:pointer}
         <div class="new-key-box" id="newKeyBox"><span id="newKeyValue"></span><button type="button" id="copyNewKey">Copy</button></div>
       </div>
       <div class="settings-section"><h3>Guild Members</h3><p>Create Viewer/Logger access for members of this guild. Customer accounts are approved separately by the Master Admin.</p>
-        <div class="account-create-row">
-          <input id="accountIgn" placeholder="IGN (e.g. ChixteR)" maxlength="40" autocomplete="off">
-          <select id="accountRole"><option value="viewer">Viewer</option><option value="logger">Logger</option></select>
-          <button type="button" id="createIgnAccount">Add Account</button>
-        </div>
+      <div class="account-create-row">
+  <input id="accountIgn" placeholder="IGN (e.g. ChixteR)" maxlength="40" autocomplete="off">
+
+  <input
+    id="accountPassword"
+    type="password"
+    placeholder="Password (8+ characters)"
+    minlength="8"
+    maxlength="128"
+    autocomplete="new-password"
+  >
+
+  <select id="accountRole">
+    <option value="viewer">Viewer</option>
+    <option value="logger">Logger</option>
+  </select>
+
+  <select id="accountGuild" style="display:none">
+    <option value="">Select Customer Guild</option>
+  </select>
+
+  <button type="button" id="createIgnAccount">Add Account</button>
+</div>
         <div id="accountList"></div>
       </div>
       <div class="settings-section"><h3>Bosses</h3><p>Enable or disable which bosses appear on this guild tracker. Disabled bosses stay saved but are hidden from all members.</p>
