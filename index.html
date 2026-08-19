@@ -661,7 +661,21 @@ async function loadBosses(){
 }
 function subscribeRealtime(){if(realtimeChannel)sbClient.removeChannel(realtimeChannel);realtimeChannel=sbClient.channel("lordnine-boss-state").on("postgres_changes",{event:"*",schema:"public",table:"guild_boss_state"},()=>loadBosses()).subscribe();}
 
-async function openSettings(){if(currentRole!=="admin")return toast("Admin access required");settingsOpen=true;document.getElementById("settingsModal").classList.add("show");await refreshKeys();await refreshIgnAccounts();await refreshBossManager();if(window.isMasterAdmin)await refreshAccountRequests()}
+async function openSettings(){
+  if(currentRole!=="admin")return toast("Admin access required");
+
+  settingsOpen=true;
+  document.getElementById("settingsModal").classList.add("show");
+
+  await refreshKeys();
+  await refreshIgnAccounts();
+  await refreshBossManager();
+
+  if(window.isMasterAdmin){
+    await refreshAccountRequests();
+    await refreshMemberGuilds();
+  }
+}
 function closeSettings(){settingsOpen=false;document.getElementById("settingsModal").classList.remove("show")}
 document.getElementById("settingsNav").onclick=e=>{e.preventDefault();openSettings()};document.getElementById("closeSettings").onclick=closeSettings;document.getElementById("settingsModal").onclick=e=>{if(e.target.id==="settingsModal")closeSettings()};async function createIgnAccount(){
   if(currentRole!=="admin")return toast("Admin access required");
@@ -759,7 +773,34 @@ async function addBoss(){
   await loadBosses();
   await refreshBossManager();
 }
+async function refreshMemberGuilds(){
+  const select=document.getElementById("accountGuild");
+  if(!select)return;
 
+  if(!window.isMasterAdmin){
+    select.style.display="none";
+    return;
+  }
+
+  const {data,error}=await sbClient
+    .from("guilds")
+    .select("id,name,active")
+    .eq("active",true)
+    .order("name");
+
+  if(error){
+    console.error(error);
+    return toast(error.message);
+  }
+
+  select.innerHTML=
+    `<option value="">Select Customer Guild</option>`+
+    (data||[]).map(g=>
+      `<option value="${g.id}">${escapeHtml(g.name)}</option>`
+    ).join("");
+
+  select.style.display="block";
+}
 
 async function refreshAccountRequests(){
   const section=document.getElementById("masterRequestsSection");
