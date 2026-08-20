@@ -591,6 +591,8 @@ async function finishLogin(){
 if(!role){
   const {data:status}=await sbClient.rpc("my_account_status");
 
+  await sbClient.auth.signOut();
+
   showAuth(
     status==="pending"
       ? "Your account is pending approval."
