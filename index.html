@@ -143,7 +143,76 @@ button{cursor:pointer}
 @media(max-width:800px){.upcoming-list{grid-template-columns:1fr}.upcoming{border-right:0;border-bottom:1px solid var(--line)}.upcoming:last-child{border-bottom:0}.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.container{padding:12px}.grid{grid-template-columns:1fr}.toolbar .spacer{display:none}.form{grid-template-columns:1fr}.field.full{grid-column:auto}.clock{display:none}}
 
-.auth-overlay{position:fixed;inset:0;background:rgba(4,5,7,.92);display:none;place-items:center;z-index:100}.auth-overlay.show{display:grid}.auth-box{width:min(430px,calc(100vw - 30px));background:#151619;border:1px solid #30333a;border-radius:14px;padding:25px;box-shadow:0 20px 80px rgba(0,0,0,.6)}.auth-brand{font-size:22px;font-weight:900}.auth-brand span{color:var(--orange)}.auth-brand small{display:block;color:#777b84;font-size:10px;letter-spacing:1px;margin-top:4px}.auth-sub{color:#8b9099;font-size:12px;margin:7px 0 20px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}.auth-tab{border:1px solid var(--line);background:#111214;color:#777b84;border-radius:7px;padding:9px;font-size:11px}.auth-tab.active{background:#26282d;color:#fff}.auth-box input{width:100%;height:42px;margin:6px 0;padding:0 12px;background:#0f1012;color:#eee;border:1px solid #2b2e34;border-radius:8px;outline:none}.auth-primary{width:100%;height:42px;margin-top:8px;background:#ff6a00;color:#fff;border:1px solid #a94400;border-radius:8px;font-weight:800}.auth-primary:disabled{opacity:.65;cursor:wait}.auth-help,.auth-message{color:#777b84;font-size:10px;line-height:1.5;margin-top:10px}.auth-message{min-height:18px;color:#f1f3f6;font-size:11px;font-weight:700}.side-user{position:absolute;left:8px;right:8px;bottom:10px;padding:10px 9px;border-top:1px solid #202328;display:flex;gap:7px;align-items:center}.role-badge{font-size:9px;font-weight:900;letter-spacing:1px;padding:5px 7px;border-radius:5px;background:#22252a;color:#999}.role-badge.admin{color:#ff9d00;border:1px solid #8a5100}.role-badge.logger{color:#63a4ff;border:1px solid #365f9a}.role-badge.viewer{color:#00d991;border:1px solid #126e58}.side-user button{margin-left:auto;background:#15171a;color:#777;border:1px solid #292c31;border-radius:6px;padding:5px 7px;font-size:9px}.upcoming-empty{grid-column:1/-1;padding:25px;text-align:center;color:#626771;font-size:11px}.waiting-note{margin-top:6px;color:#777b84;font-size:10px}.settings-modal{position:fixed;inset:0;background:rgba(0,0,0,.76);display:none;place-items:center;z-index:80}.settings-modal.show{display:grid}.settings-box{width:min(650px,calc(100vw - 25px));max-height:85vh;overflow:auto;background:#151619;border:1px solid #30333a;border-radius:12px;box-shadow:0 20px 70px rgba(0,0,0,.6)}.settings-head{display:flex;justify-content:space-between;align-items:center;padding:15px 17px;border-bottom:1px solid var(--line)}.settings-head h2{margin:0;font-size:17px}.settings-head small{color:#777b84}.settings-head button{background:none;border:0;color:#777;font-size:24px}.settings-body{padding:16px}.settings-section{padding:15px;border:1px solid #292c31;border-radius:9px;margin-bottom:12px}.settings-section h3{margin:0 0 5px;font-size:13px}.settings-section p{color:#777b84;font-size:10px;margin:0 0 12px}.settings-section>input{width:100%;height:38px;background:#0f1012;border:1px solid #2b2e34;border-radius:7px;color:#eee;padding:0 10px}boss-manage-row{display:flex;gap:8px;align-items:center;margin-bottom:9px}.boss-manage-row input{flex:1;height:36px;background:#0f1012;border:1px solid #2b2e34;border-radius:7px;color:#eee;padding:0 10px}.boss-manage-row input.small{max-width:130px}.boss-list-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #24272c}.boss-list-row:last-child{border-bottom:0}.boss-list-row b{font-size:10px}.boss-list-row small{display:block;color:#666b75;font-size:9px;margin-top:3px}.boss-toggle{border:1px solid #353941;background:#17191c;color:#aaa;border-radius:6px;padding:6px 9px;font-size:9px}.boss-toggle.on{color:#00d991;border-color:#126e58}.boss-toggle.off{color:#ff6b6b;border-color:#7a3030}.request-row{padding:10px 0;border-bottom:1px solid #24272c}.request-row:last-child{border-bottom:0}.request-row b{font-size:10px}.request-row small{display:block;color:#666b75;font-size:9px;margin-top:3px}.request-actions{display:flex;gap:6px;margin-top:7px}.request-actions button{border:1px solid #353941;background:#17191c;color:#aaa;border-radius:6px;padding:6px 9px;font-size:9px}.request-actions .approve{color:#00d991;border-color:#126e58}.request-actions .reject{color:#ff6b6b;border-color:#7a3030}
+.auth-overlay{position:fixed;inset:0;background:rgba(4,5,7,.92);display:none;place-items:center;z-index:100}.auth-overlay.show{display:grid}.auth-box{width:min(430px,calc(100vw - 30px));background:#151619;border:1px solid #30333a;border-radius:14px;padding:25px;box-shadow:0 20px 80px rgba(0,0,0,.6)}.auth-brand{font-size:22px;font-weight:900}.auth-brand span{color:var(--orange)}.auth-brand small{display:block;color:#777b84;font-size:10px;letter-spacing:1px;margin-top:4px}.auth-sub{color:#8b9099;font-size:12px;margin:7px 0 20px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px}.auth-tab{border:1px solid var(--line);background:#111214;color:#777b84;border-radius:7px;padding:9px;font-size:11px}.auth-tab.active{background:#26282d;color:#fff}.auth-box input{width:100%;height:42px;margin:6px 0;padding:0 12px;background:#0f1012;color:#eee;border:1px solid #2b2e34;border-radius:8px;outline:none}.auth-primary{width:100%;height:42px;margin-top:8px;background:#ff6a00;color:#fff;border:1px solid #a94400;border-radius:8px;font-weight:800}.auth-primary:disabled{opacity:.65;cursor:wait}.auth-help,.auth-message{color:#777b84;font-size:10px;line-height:1.5;margin-top:10px}.auth-message{min-height:18px;color:#f1f3f6;font-size:11px;font-weight:700}.side-user{position:absolute;left:8px;right:8px;bottom:10px;padding:10px 9px;border-top:1px solid #202328;display:flex;gap:7px;align-items:center}.role-badge{font-size:9px;font-weight:900;letter-spacing:1px;padding:5px 7px;border-radius:5px;background:#22252a;color:#999}.role-badge.admin{color:#ff9d00;border:1px solid #8a5100}.role-badge.logger{color:#63a4ff;border:1px solid #365f9a}.role-badge.viewer{color:#00d991;border:1px solid #126e58}.side-user button{margin-left:auto;background:#15171a;color:#777;border:1px solid #292c31;border-radius:6px;padding:5px 7px;font-size:9px}.upcoming-empty{grid-column:1/-1;padding:25px;text-align:center;color:#626771;font-size:11px}.waiting-note{margin-top:6px;color:#777b84;font-size:10px}.settings-modal{position:fixed;inset:0;background:rgba(0,0,0,.76);display:none;place-items:center;z-index:80}.settings-modal.show{display:grid}.settings-box{width:min(650px,calc(100vw - 25px));max-height:85vh;overflow:auto;background:#151619;border:1px solid #30333a;border-radius:12px;box-shadow:0 20px 70px rgba(0,0,0,.6)}.settings-head{display:flex;justify-content:space-between;align-items:center;padding:15px 17px;border-bottom:1px solid var(--line)}.settings-head h2{margin:0;font-size:17px}.settings-head small{color:#777b84}.settings-head button{background:none;border:0;color:#777;font-size:24px}.settings-body{padding:16px}.settings-section{padding:15px;border:1px solid #292c31;border-radius:9px;margin-bottom:12px}.settings-section h3{margin:0 0 5px;font-size:13px}.settings-section p{color:#777b84;font-size:10px;margin:0 0 12px}.settings-section>input{width:100%;height:38px;background:#0f1012;border:1px solid #2b2e34;border-radius:7px;color:#eee;padding:0 10px}.boss-manage-row{display:flex;gap:8px;align-items:center;margin-bottom:9px}.boss-manage-row input{flex:1;height:36px;background:#0f1012;border:1px solid #2b2e34;border-radius:7px;color:#eee;padding:0 10px}.boss-manage-row input.small{max-width:130px}.boss-list-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #24272c}.boss-list-row:last-child{border-bottom:0}.boss-list-row b{font-size:10px}.boss-list-row small{display:block;color:#666b75;font-size:9px;margin-top:3px}.boss-toggle{border:1px solid #353941;background:#17191c;color:#aaa;border-radius:6px;padding:6px 9px;font-size:9px}.boss-toggle.on{color:#00d991;border-color:#126e58}.boss-toggle.off{color:#ff6b6b;border-color:#7a3030}.request-row{padding:10px 0;border-bottom:1px solid #24272c}.request-row:last-child{border-bottom:0}.request-row b{font-size:10px}.request-row small{display:block;color:#666b75;font-size:9px;margin-top:3px}.request-actions{display:flex;gap:6px;margin-top:7px}.request-actions button{border:1px solid #353941;background:#17191c;color:#aaa;border-radius:6px;padding:6px 9px;font-size:9px}.request-actions .approve{color:#00d991;border-color:#126e58}.request-actions .reject{color:#ff6b6b;border-color:#7a3030}
+  .settings-layout {
+  display: flex;
+  min-height: 430px;
+}
+
+.settings-nav {
+  width: 210px;
+  flex-shrink: 0;
+  padding: 12px;
+  border-right: 1px solid #292c31;
+  background: #111214;
+}
+
+.settings-nav-item {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 5px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #888d96;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.settings-nav-item:hover {
+  background: #1b1d20;
+  color: #eee;
+}
+
+.settings-nav-item.active {
+  background: #22252a;
+  border-color: #34373d;
+  color: #fff;
+}
+
+.settings-content {
+  flex: 1;
+  min-width: 0;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.settings-page {
+  width: 100%;
+}
+
+@media (max-width: 650px) {
+  .settings-layout {
+    flex-direction: column;
+  }
+
+  .settings-nav {
+    width: auto;
+    border-right: 0;
+    border-bottom: 1px solid #292c31;
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+  }
+
+  .settings-nav-item {
+    width: auto;
+    min-width: max-content;
+    margin-bottom: 0;
+  }
+}
   .account-create-row{display:grid;grid-template-columns:1.3fr 1.3fr .8fr auto;gap:7px;margin-bottom:10px}
   .account-create-row input,.account-create-row select{min-width:0;border:1px solid #2c2f35;background:#111214;color:#ddd;border-radius:6px;padding:8px 9px;font-size:10px;outline:none}
   .account-create-row button{border:1px solid #353941;background:#17191c;color:#ddd;border-radius:6px;padding:8px 10px;font-size:10px;cursor:pointer}
@@ -241,27 +310,164 @@ button{cursor:pointer}
 
 <div class="settings-modal" id="settingsModal">
   <div class="settings-box">
-    <div class="settings-head"><div><h2>Settings</h2><small>Access Management</small></div><button type="button" id="closeSettings">×</button></div>
-    <div class="settings-body">
-      <div class="settings-section" id="masterRequestsSection" style="display:none">
-  <h3>Customer Account Requests</h3>
-  <p>Verify payment in Discord, then approve the customer here. Approval creates their separate guild workspace and activates their Admin account.</p>
-  <div id="accountRequestList"></div>
-</div>
-      <div class="settings-section"><h3>Guild Members</h3><p>Create Viewer/Logger access for members of this guild. Customer accounts are approved separately by the Master Admin.</p>
-        <div class="account-create-row">
-          <input id="accountIgn" placeholder="IGN (e.g. ChixteR)" maxlength="40" autocomplete="off">
-          <input id="accountPassword" type="password" placeholder="Password (8+ characters)" minlength="8" maxlength="128" autocomplete="new-password">
-          <select id="accountRole"><option value="viewer">Viewer</option><option value="logger">Logger</option></select>
-          <button type="button" id="createIgnAccount">Add Account</button>
-        </div>
-        <div id="accountList"></div>
+
+    <div class="settings-head">
+      <div>
+        <h2>Settings</h2>
+        <small>Access Management</small>
       </div>
-      <div class="settings-section"><h3>Bosses</h3><p>Enable or disable which bosses appear on this guild tracker. Disabled bosses stay saved but are hidden from all members.</p>
-        <div class="boss-manage-row"><input id="newBossName" placeholder="Boss name (e.g. New Boss)" maxlength="60"><input id="newBossRespawn" class="small" type="number" min="0.1" step="0.1" placeholder="Respawn hours"><button type="button" id="addBossBtn">Add Boss</button></div>
-        <div id="bossManageList"></div>
+      <button type="button" id="closeSettings">×</button>
+    </div>
+
+    <div class="settings-layout">
+
+      <!-- SETTINGS MENU -->
+      <div class="settings-nav">
+
+        <button
+          type="button"
+          class="settings-nav-item master-only"
+          data-settings="requests"
+          id="settingsRequestsTab"
+        >
+          Customer Account Requests
+        </button>
+
+        <button
+          type="button"
+          class="settings-nav-item"
+          data-settings="guilds"
+        >
+          Guilds
+        </button>
+
+        <button
+          type="button"
+          class="settings-nav-item"
+          data-settings="bosses"
+        >
+          Bosses
+        </button>
+
+      </div>
+
+      <!-- SETTINGS CONTENT -->
+      <div class="settings-content">
+
+        <!-- CUSTOMER ACCOUNT REQUESTS -->
+        <div
+          class="settings-page"
+          id="settingsPageRequests"
+          style="display:none"
+        >
+          <div class="settings-section" id="masterRequestsSection">
+            <h3>Customer Account Requests</h3>
+
+            <p>
+              Verify payment in Discord, then approve the customer here.
+              Approval creates their separate guild workspace and activates
+              their Admin account.
+            </p>
+
+            <div id="accountRequestList"></div>
+          </div>
+        </div>
+
+        <!-- GUILDS -->
+        <div
+          class="settings-page"
+          id="settingsPageGuilds"
+          style="display:none"
+        >
+          <div class="settings-section">
+
+            <h3>Guilds</h3>
+
+            <p>
+              Create Viewer/Logger access for members of this guild.
+              Customer accounts are approved separately by the Master Admin.
+            </p>
+
+            <div class="account-create-row">
+
+              <input
+                id="accountIgn"
+                placeholder="IGN (e.g. ChixteR)"
+                maxlength="40"
+                autocomplete="off"
+              >
+
+              <input
+                id="accountPassword"
+                type="password"
+                placeholder="Password (8+ characters)"
+                minlength="8"
+                maxlength="128"
+                autocomplete="new-password"
+              >
+
+              <select id="accountRole">
+                <option value="viewer">Viewer</option>
+                <option value="logger">Logger</option>
+              </select>
+
+              <button type="button" id="createIgnAccount">
+                Add Account
+              </button>
+
+            </div>
+
+            <div id="accountList"></div>
+
+          </div>
+        </div>
+
+        <!-- BOSSES -->
+        <div
+          class="settings-page"
+          id="settingsPageBosses"
+          style="display:none"
+        >
+          <div class="settings-section">
+
+            <h3>Bosses</h3>
+
+            <p>
+              Enable or disable which bosses appear on this guild tracker.
+              Disabled bosses stay saved but are hidden from all members.
+            </p>
+
+            <div class="boss-manage-row">
+
+              <input
+                id="newBossName"
+                placeholder="Boss name (e.g. New Boss)"
+                maxlength="60"
+              >
+
+              <input
+                id="newBossRespawn"
+                class="small"
+                type="number"
+                min="0.1"
+                step="0.1"
+                placeholder="Respawn hours"
+              >
+
+              <button type="button" id="addBossBtn">
+                Add Boss
+              </button>
+
+            </div>
+
+            <div id="bossManageList"></div>
+
+          </div>
+        </div>
+
       </div>
     </div>
+
   </div>
 </div>
 
@@ -673,7 +879,65 @@ async function loadBosses(){
 }
 function subscribeRealtime(){if(realtimeChannel)sbClient.removeChannel(realtimeChannel);realtimeChannel=sbClient.channel("lordnine-boss-state").on("postgres_changes",{event:"*",schema:"public",table:"guild_boss_state"},()=>loadBosses()).subscribe();}
 
-async function openSettings(){if(currentRole!=="admin")return toast("Admin access required");settingsOpen=true;document.getElementById("settingsModal").classList.add("show");await refreshIgnAccounts();await refreshBossManager();if(window.isMasterAdmin)await refreshAccountRequests()}
+async function openSettings() {
+  if (currentRole !== "admin") {
+    return toast("Admin access required");
+  }
+
+  settingsOpen = true;
+
+  document
+    .getElementById("settingsModal")
+    .classList.add("show");
+
+  const requestsTab = document.getElementById("settingsRequestsTab");
+
+  if (requestsTab) {
+    requestsTab.style.display =
+      window.isMasterAdmin ? "block" : "none";
+  }
+
+  await refreshIgnAccounts();
+  await refreshBossManager();
+
+  if (window.isMasterAdmin) {
+    await refreshAccountRequests();
+    openSettingsPage("requests");
+  } else {
+    openSettingsPage("guilds");
+  }
+}
+  function openSettingsPage(page) {
+  document.querySelectorAll(".settings-page").forEach((section) => {
+    section.style.display = "none";
+  });
+
+  document.querySelectorAll(".settings-nav-item").forEach((button) => {
+    button.classList.remove("active");
+  });
+
+  const pageElement = document.getElementById(
+    "settingsPage" + page.charAt(0).toUpperCase() + page.slice(1)
+  );
+
+  const tabElement = document.querySelector(
+    `.settings-nav-item[data-settings="${page}"]`
+  );
+
+  if (pageElement) {
+    pageElement.style.display = "block";
+  }
+
+  if (tabElement) {
+    tabElement.classList.add("active");
+  }
+}
+
+document.querySelectorAll(".settings-nav-item").forEach((button) => {
+  button.addEventListener("click", () => {
+    openSettingsPage(button.dataset.settings);
+  });
+});
 function closeSettings(){settingsOpen=false;document.getElementById("settingsModal").classList.remove("show")}
 document.getElementById("settingsNav").onclick=e=>{e.preventDefault();openSettings()};document.getElementById("closeSettings").onclick=closeSettings;document.getElementById("settingsModal").onclick=e=>{if(e.target.id==="settingsModal")closeSettings()};
 async function createIgnAccount(){
