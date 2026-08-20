@@ -623,6 +623,32 @@ if(!role){
   subscribeRealtime();
   if(window.isMasterAdmin) await refreshAccountRequests();
 }
+async function refreshMyRole(){
+  if(!currentSession)return;
+
+  const {data:role,error}=await sbClient.rpc("current_user_role");
+  if(error||!role)return;
+
+  const {data:status}=await sbClient.rpc("my_account_status");
+
+  if(status==="disabled"){
+    await sbClient.auth.signOut();
+    showAuth("This account is disabled.");
+    return;
+  }
+
+  if(role!==currentRole){
+    currentRole=role;
+
+    document.getElementById("roleBadge").textContent=role.toUpperCase();
+
+    render();
+
+    toast(`Account role changed to ${role.toUpperCase()}`);
+  }
+}
+
+setInterval(refreshMyRole,5000);  
 document.getElementById("adminLoginBtn").onclick=loginAdmin;
 document.getElementById("customerLoginBtn").onclick=loginCustomerAdmin;
 document.getElementById("customerIgn").addEventListener("keydown",e=>{if(e.key==="Enter")loginCustomerAdmin()});document.getElementById("customerPassword").addEventListener("keydown",e=>{if(e.key==="Enter")loginCustomerAdmin()});
