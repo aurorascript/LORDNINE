@@ -641,7 +641,10 @@ async function refreshMyRole(){
 
   if(role!==currentRole){
     currentRole=role;
-
+    
+document.getElementById("maintenanceReset").style.display =
+  role==="admin" ? "" : "none";
+    
     document.getElementById("roleBadge").textContent=role.toUpperCase();
 
     render();
