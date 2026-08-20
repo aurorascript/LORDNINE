@@ -676,11 +676,36 @@ async function refreshIgnAccounts(){
      <button type="button" onclick="${a.revoked ? `enableIgnAccount('${a.id}')` : `disableIgnAccount('${a.id}')`}">
 ${a.revoked ? "Enable" : "Disable"}
 </button>
+
+<button type="button"
+  onclick="changeIgnAccountRole('${a.id}','${a.role}')"
+  title="Change role">
+  ✎
+</button>
       <button type="button" class="danger" onclick="deleteIgnAccount('${a.id}')">Delete</button>
     </div>
   </div>`).join("")||`<div class="empty">No IGN accounts created yet.</div>`;
 } 
-async function disableIgnAccount(id){
+async function changeIgnAccountRole(id,accountRole){
+  if(currentRole!=="admin")
+    return toast("Admin access required");
+
+  const newRole = accountRole === "viewer" ? "logger" : "viewer";
+
+  if(!confirm(`Change this account from ${accountRole.toUpperCase()} to ${newRole.toUpperCase()}?`))
+    return;
+
+  const {error}=await sbClient.rpc("update_ign_account_role",{
+    p_account_id:id,
+    p_role:newRole
+  });
+
+  if(error)return toast(error.message);
+
+  toast(`IGN account changed to ${newRole.toUpperCase()}`);
+  await refreshIgnAccounts();
+}
+  async function disableIgnAccount(id){
   if(currentRole!=="admin")return toast("Admin access required");
   const {error}=await sbClient.rpc("disable_ign_account",{p_account_id:id});
   if(error)return toast(error.message);
